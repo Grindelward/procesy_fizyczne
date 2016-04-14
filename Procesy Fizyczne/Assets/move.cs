@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class move : MonoBehaviour {
 
     public Rigidbody rb;
     public float speed;
+    public float boost = 2;
 
 	// Use this for initialization
 	void Start () {
@@ -18,14 +20,19 @@ public class move : MonoBehaviour {
 
     void FixedUpdate() // before physics code
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        float moveHorizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+        float moveVertical = CrossPlatformInputManager.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical) * speed;
+        bool isBoosting = CrossPlatformInputManager.GetButton("Boost");
 
-        movement = Random.insideUnitSphere * speed;
-        movement.y = 0.0f;
+        //Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
 
-        rb.AddForce(movement * speed);
+        //movement = Random.insideUnitSphere * speed;
+        //movement.y = 0.0f;
+
+        if (isBoosting) rb.useGravity = false; else rb.useGravity = true;
+
+        rb.AddForce(movement);
     }
 }
