@@ -69,6 +69,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Init.cs" />
+    <Compile Include="Assets\Pso.cs" />
     <Compile Include="Assets\RandomTerrain.cs" />
     <Compile Include="Assets\move.cs" />
     <Compile Include="Assets\respawn.cs" />
