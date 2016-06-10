@@ -3,7 +3,6 @@ using System.Collections;
 
 public class Pso : MonoBehaviour
 {
-    Rigidbody rb;
     float pBestValue;
     Vector3 pBestPos;
     Vector3 velocity;
@@ -11,19 +10,92 @@ public class Pso : MonoBehaviour
     float c1 = 1.49678f;
     float c2 = 1.49678f;
 
-    GameObject player;
-    static Init globalsValue;
+    static GameObject player;
+    Rigidbody rb;
+
+    public static Vector3 globalPositionBest;
+    public static float globalValueBest = 9999999.0f;
     
     float resolutionLength = Terrain.activeTerrain.terrainData.size.x;
     float resolutionWidth = Terrain.activeTerrain.terrainData.size.z;
+
+    static int counter = 0;
 
     // Use this for initialization
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        globalsValue = GameObject.Find("PsoGlobals").GetComponent<Init>();
         player = GameObject.Find("Player");
 
+        randomPosition();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(counter > 10)
+        {
+            counter = 0;
+            globalValueBest = 999;
+        }
+        Vector3 position = rb.transform.position;
+        Vector3 newVelocity;
+        Vector3 newPosition;
+
+        float distance = grosen(position);
+
+        if (distance < pBestValue)
+        {
+            pBestPos = position;
+            pBestValue = distance;
+        }
+        if (distance < globalValueBest)
+        {
+            globalPositionBest = position;
+            globalValueBest = distance;
+        }
+        float c3 = 0.73f;
+        newVelocity.x = velocity.x + c1 * Random.value * (pBestPos.x - position.x) +
+            c2 * Random.value * (globalPositionBest.x - position.x);
+        newVelocity.x = newVelocity.x * c3;
+        newPosition.x = position.x + newVelocity.x;
+
+        newVelocity.y = velocity.y + c1 * Random.value * (pBestPos.y - position.y) +
+            c2 * Random.value * (globalPositionBest.y - position.y);
+        newVelocity.y = newVelocity.y * c3;
+        newPosition.y = position.y + newVelocity.y;
+
+        newVelocity.z = velocity.z + c1 * Random.value * (pBestPos.z - position.z) +
+            c2 * Random.value * (globalPositionBest.z - position.z);
+        newVelocity.z = newVelocity.z * c3;
+        newPosition.z = position.z + newVelocity.z;
+
+        Debug.Log(newVelocity.x+" "+newVelocity.y+" "+newVelocity.z);
+
+         if ( newPosition.x >= 0 && newPosition.x <= resolutionLength && newPosition.z >= 0 && newPosition.z <= resolutionWidth)
+        {
+             velocity = newVelocity;
+             //rb.AddForce(newPosition);
+             rb.transform.position = newPosition;
+        }
+        else
+        {
+            randomPosition();
+        }
+
+         counter++;
+    }
+
+
+    float grosen(Vector3 pos)
+    {
+        return Mathf.Sqrt(Mathf.Pow(pos.x - player.transform.position.x,2) + 
+                Mathf.Pow(pos.y - player.transform.position.y, 2) + 
+                Mathf.Pow(pos.z - player.transform.position.z, 2));
+    }
+
+    void randomPosition()
+    {
         rb.transform.position = new Vector3(resolutionLength * Random.value, 20.0f, resolutionWidth * Random.value);
 
         velocity.x = (resolutionLength / 100.0f) * (1.0f - 2.0f * Random.value);
@@ -35,19 +107,6 @@ public class Pso : MonoBehaviour
         pBestPos.z = rb.transform.position.z;
 
         pBestValue = grosen(rb.transform.position);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    float grosen(Vector3 pos)
-    {
-        return Mathf.Sqrt(Mathf.Pow(pos.x - player.transform.position.x,2) + 
-                Mathf.Pow(pos.y - player.transform.position.y, 2) + 
-                Mathf.Pow(pos.z - player.transform.position.z, 2));
     }
 }
 
